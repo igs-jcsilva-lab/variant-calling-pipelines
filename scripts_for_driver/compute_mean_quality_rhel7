@@ -1,0 +1,24 @@
+#! /usr/local/packages/python-2.7.14/bin/python
+
+#Script modified from Elliot Drabek
+
+from sys import *
+from drabek import print_tabbed
+from collections import defaultdict
+
+###############################################################################
+
+total = 0
+count = 0
+
+bottom = ord('!')
+
+phase = 0
+for line in stdin:
+  phase = (phase + 1) % 4
+  if phase == 0:
+    base_count = len(line) - 1
+    count += base_count
+    total += sum(ord(c) for c in line[:-1]) - bottom * base_count
+
+print '\t'.join(map(str, (count, total / float(count))))

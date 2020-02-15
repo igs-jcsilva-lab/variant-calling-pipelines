@@ -1,0 +1,51 @@
+#! /bin/bash
+
+###############################################################################
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+#export PATH=.:/home/edrabek/bin:${PATH:-}
+#export LC_ALL=C
+
+###############################################################################
+# command line parameters
+
+# mem_free 16G should work for the full update
+mem_free=$1
+shift
+
+###############################################################################
+# things you conceivably change
+
+base_d=/local/projects-t3/p_falciparum/samples
+scripts_d=/local/projects-t3/p_falciparum/scripts/update_sample_directory/scripts_for_driver
+auxiliary_files_d=/local/projects-t3/p_falciparum/auxiliary_files
+
+###############################################################################
+
+timestamp=`date +%FT%H-%M-%S`
+echo 1>&2 timestamp=$timestamp
+
+for country_d in $base_d/*; do
+  for sample_d in $country_d/*; do
+    if [[ ! -e $sample_d ]]; then # this takes care of country directories with no sample directories in them
+      break
+    fi
+
+    # This checks for the last file created in the update script and skips the sample if that already exists. If you
+    # want to fill in missing intermediate files, comment out this test
+#    if [[ -e $sample_d/alignments_v24.merged/all.sorted_and_recalibrated.flagstat ]]; then
+#      continue
+#    fi
+
+    name=u$(basename $sample_d)
+    logs_d=$sample_d/logs
+    mkdir -p $logs_d
+    out=$logs_d/$timestamp.out
+    err=$logs_d/$timestamp.err
+
+    echo qsub -V -N $name -o $out -e $err -l mem_free=$mem_free $scripts_d/update_sample_directory.sh $sample_d $scripts_d $auxiliary_files_d
+  done
+done

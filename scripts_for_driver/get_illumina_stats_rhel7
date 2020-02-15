@@ -1,0 +1,24 @@
+#! /usr/local/packages/python-2.7.14/bin/python
+
+#Author: Modified from Elliot Drabek
+
+from sys import *
+from drabek import print_tabbed
+from collections import defaultdict
+
+###############################################################################
+
+phase = 0
+
+reads = bases = 0
+readLengths = set()
+for line in stdin:
+  if phase == 1:
+    readLength = len(line) - 1
+    reads += 1
+    bases += readLength
+    readLengths.add(readLength)
+
+  phase = (phase + 1) % 4
+
+print 'bases %s reads %s readLength %s' % (bases, reads, ','.join(map(str, readLengths)))
